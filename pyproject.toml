@@ -1,0 +1,14 @@
+[project]
+name = "laozhubot"
+version = "0.1.0"
+description = "laozhubot"
+readme = "README.md"
+requires-python = ">=3.9, <4.0"
+
+[tool.nonebot]
+adapters = [
+    { name = "OneBot V11", module_name = "nonebot.adapters.onebot.v11" }
+]
+plugins = ["nonebot_plugin_status", "nonebot_plugin_memes","nonebot_plugin_cloudsignx"]
+plugin_dirs = ["laozhubot/plugins"]
+builtin_plugins = ["echo"]
