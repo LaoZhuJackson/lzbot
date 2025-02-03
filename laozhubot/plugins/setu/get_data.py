@@ -219,7 +219,7 @@ class GetData:
                 tasks = [self.pic_random(keywords, r18, quality, client, pm.read_proxy()) for i in range(num)]
                 data = await asyncio.gather(*tasks)
             except Exception as e:
-                logger.error(f"api获取随机图片失败: {e}")
+                logger.error(f"api获取随机图片失败: {repr(e)}")
         return data
 
     async def pic_random(self, keywords: List[str], r18: bool, quality: int, client: AsyncClient, setu_proxy: str):
@@ -254,9 +254,12 @@ class GetData:
         conn = sqlite3.connect(self.database_path)  # 连接数据库
         cur = conn.cursor()
         # image_data表
-        sql_image_data = f"""INSERT OR IGNORE INTO image_data (pid, p, uid, title, author, r18, width, height, ext, ai_type, upload_date, urls)
-                                            VALUES ({pid},{p},{uid},{title},{author},{r18},{width},{height},{ext},{ai_type},{upload_date},{setu_url_origin})"""
-        cur.execute(sql_image_data)
+        cur.execute('''
+            INSERT OR IGNORE INTO main (pid, p, uid, title, author, r18, width, height, ext, ai_type, upload_date, urls)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ''', (
+            pid, p, uid, title, author, r18, width, height, ext,ai_type,upload_date,setu_url_origin
+        ))
         # tags表
         for tag in tags:
             cur.execute('''
