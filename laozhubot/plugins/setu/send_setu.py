@@ -100,7 +100,6 @@ class SendSetu:
         key = [word.strip() for word in key.split(" ") if word.strip()]
 
         # 控制台输出
-        flag_log = f"\nR18:{r18}\n关键词:{key}\n数量:{num}\n"
         logger.info(f"key = {key}\tr18 = {r18}\tnum = {num}")
         # 记录cd时间
         pm.update_last_send(session_id)
@@ -116,10 +115,10 @@ class SendSetu:
         for pic in data:
             # 如果状态为True,说明图片拿到了
             if pic[2]:
+                flag_log = f"\nR18:{r18}\n关键词:{key}\n数量:{num}\n"
                 message_list.append(
                     f"{random.choice(setu_sendmessage)}{flag_log}" + Message(pic[1]) + MessageSegment.image(pic[0])
                 )
-                flag_log = ""
             # 状态为false的消息,图片没拿到
             else:
                 message_list.append(pic[0] + pic[1])
