@@ -258,7 +258,7 @@ class GetData:
         # image_data表
         cur.execute('''
             INSERT OR IGNORE INTO image_data (pid, p, uid, title, author, r18, width, height, ext, ai_type, upload_date, urls, status)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ''', (
             pid, p, uid, title, author, r18, width, height, ext, ai_type, upload_date, setu_url_origin, 'available'
         ))
