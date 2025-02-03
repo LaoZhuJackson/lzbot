@@ -212,6 +212,7 @@ class GetData:
             return ["Error", f"图片处理失败: {repr(e)}", False, setu_url]
 
     async def random_get_setu(self, keywords: List[str], num: int = 1, r18: bool = False, quality: int = 75):
+        data = []
         async with AsyncClient() as client:
             try:
                 tasks = [self.pic_random(keywords, r18, quality, client, pm.read_proxy()) for i in range(num)]
