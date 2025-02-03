@@ -135,7 +135,7 @@ class SendSetu:
                     {
                         "type": "node",
                         "data": {
-                            "name": "setu-bot",
+                            "name": "小琉璃",
                             "uin": bot.self_id,
                             "content": msg,
                         },

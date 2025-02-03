@@ -138,6 +138,10 @@ class GetData:
                     self.pic(setu, quality, client, pm.read_proxy()) for setu in db_data
                 ]
                 data = await asyncio.gather(*tasks)
+                # 如果本地数量不够
+                if len(tasks) < num:
+                    data_append = await self.random_get_setu(keywords, num - len(tasks), r18, quality)
+                    data.append(data_append)
         return data
 
     async def pic(self, setu: List, quality: int, client: AsyncClient, setu_proxy: str):
