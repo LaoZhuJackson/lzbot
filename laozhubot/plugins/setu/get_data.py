@@ -231,20 +231,29 @@ class GetData:
         return data
 
     async def pic_random(self, keywords: List[str], r18: bool, quality: int, client: AsyncClient, setu_proxy: str):
-        tag = ''
+        tag_and = ''
+        tag_or = '&tag='
         if keywords:
             for keyword in keywords:
-                tag = tag + f"&tag={keyword}"
+                tag_and = tag_and + f"&tag={keyword}"
+                tag_or = tag_or + f"{keyword}|"
         r18 = 1 if r18 else 0
-        api_url = f"https://api.lolicon.app/setu/v2?r18={r18}{tag}&excludeAI=1"
-        res = await client.get(
-            api_url
+        api_url_and = f"https://api.lolicon.app/setu/v2?r18={r18}{tag_and}&excludeAI=1"
+        api_url_or = f"https://api.lolicon.app/setu/v2?r18={r18}{tag_or}&excludeAI=1"
+        res_and = await client.get(
+            api_url_and
         )
-        if res.status_code != 200:
-            return ["Error", f"api获取图片失败，status_code: {res.status_code}", False, api_url]
+        res_or = await client.get(api_url_or)
+        if res_and.status_code != 200 and res_or.status_code != 200:
+            return ["Error", f"api获取图片失败，status_code: {res_and.status_code}，{res_or.status_code}", False, api_url_and]
+        res = res_and if len(res_and.json()["data"]) > 0 else res_or
         logger.debug(f"{res.json()}")
-        logger.debug(f"{api_url=}")
+        logger.debug(f"{api_url_or=}")
+        logger.debug(f"{api_url_and=}")
         data = res.json()["data"]
+        if not data:
+            return ["Error", f"data获取失败{res.json()},没有符合条件的结果", False, api_url_and]
+        data = res.json()["data"][0]
         pid = data["pid"]
         p = data["p"]
         uid = data["uid"]
