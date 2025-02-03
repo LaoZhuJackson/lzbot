@@ -1,4 +1,5 @@
 import asyncio
+import json
 import os
 import random
 import sqlite3
@@ -59,7 +60,7 @@ class GetData:
         conn.commit()
         conn.close()
 
-    async def get_setu(self, keywords: List[str], num: int = 1, r18: bool = False, quality: int = 75):
+    async def get_setu(self, keywords: List[str], num: int = 1, r18: bool = False, quality: int = 75) -> List[list]:
         """
         :param keywords:关键词列表
         :param num:数量
@@ -124,8 +125,11 @@ class GetData:
         db_data = cur.execute(sql).fetchall()
         # 断开数据库连接
         conn.close()
-        if db_data == []:
-            raise ValueError(f"图库中没有搜到关于{keywords}的图")
+        if not db_data:
+            logger.warning(f"图库中没有搜到关于{keywords}的图, 即将随机产生一张")
+            # 随机产生涩图
+            await self.random_get_setu(keywords, num, r18, quality)
+            # raise ValueError(f"图库中没有搜到关于{keywords}的图，即将随机产生一张")
         # 如果找到了
         async with AsyncClient(proxies=config.scientific_agency) as client:
             tasks = [
@@ -204,6 +208,105 @@ class GetData:
             # 尝试修改图片
             pic = await self.change_pixel(image, quality)
             return [pic, data, True, setu_url]
+        except Exception as e:
+            return ["Error", f"图片处理失败: {repr(e)}", False, setu_url]
+
+    async def random_get_setu(self, keywords: List[str], num: int = 1, r18: bool = False, quality: int = 75):
+        async with AsyncClient() as client:
+            try:
+                tasks = [self.pic_random(keywords, r18, quality, client, pm.read_proxy()) for i in range(num)]
+                data = await asyncio.gather(*tasks)
+            except Exception as e:
+                logger.error(f"api获取随机图片失败: {repr(e)}")
+        return data
+
+    async def pic_random(self, keywords: List[str], r18: bool, quality: int, client: AsyncClient, setu_proxy: str):
+        tag = ''
+        if keywords:
+            for keyword in keywords:
+                tag = tag + f"&tag={keyword}"
+        r18 = 1 if r18 else 0
+        api_url = f"https://api.lolicon.app/setu/v2?r18={r18}{tag}&excludeAI=1"
+        res = await client.get(
+            api_url
+        )
+        if res.status_code != 200:
+            return ["Error", f"api获取图片失败，status_code: {res.status_code}", False, api_url]
+        data = res.json()["data"][0]
+        pid = data["pid"]
+        p = data["p"]
+        uid = data["uid"]
+        title = data["title"]
+        author = data["author"]
+        r18 = data["r18"]
+        width = data["width"]
+        height = data["height"]
+        ext = data["ext"]
+        ai_type = data["aiType"]
+        upload_date = data["uploadDate"]
+        tags = data["tags"]
+        urls = data["urls"]
+        setu_url_origin = urls["original"]
+
+        # 写入数据库
+        conn = sqlite3.connect(self.database_path)  # 连接数据库
+        cur = conn.cursor()
+        # image_data表
+        sql_image_data = f"""INSERT OR IGNORE INTO image_data (pid, p, uid, title, author, r18, width, height, ext, ai_type, upload_date, urls)
+                                            VALUES ({pid},{p},{uid},{title},{author},{r18},{width},{height},{ext},{ai_type},{upload_date},{setu_url_origin})"""
+        cur.execute(sql_image_data)
+        # tags表
+        for tag in tags:
+            cur.execute('''
+                                    INSERT OR IGNORE INTO tags (tag_name) VALUES (?)
+                                ''', (tag,))
+        # image_tags表
+        for tag in tags:
+            cur.execute('''
+                                    SELECT tag_id FROM tags WHERE tag_name = ?
+                                ''', (tag,))
+            tag_id = cur.fetchone()
+            if tag_id:
+                tag_id = tag_id[0]
+                cur.execute('''
+                                        INSERT INTO image_tags (pid, tag_id) VALUES (?, ?)
+                                    ''', (pid, tag_id))
+        conn.commit()
+        conn.close()
+        # 尝试获取图片
+        logger.debug(f"{r18=}")
+        logger.debug(f"{type(r18)}")
+        is_nsfw = r18
+        save_path: Union[bool, str] = (
+            config.setu_nsfw_path if is_nsfw else config.setu_sfw_path
+        )
+
+        setu_url: str = setu_url_origin.replace("i.pixiv.re", setu_proxy)  # 图片url
+        file_name = setu_url.split("/")[-1]  # 获取文件名
+        photo_info = f"标题:{title}\npid:{pid}\n画师:{author}"
+
+        content: Union[bytes, int] = await download_pic(setu_url, client)
+        # 如果返回的是int, 那么就是状态码, 表示下载失败
+        if isinstance(content, int):
+            logger.error(f"图片下载失败, 状态码: {content}")  # 返回错误信息
+            return ["Error", f"图片下载失败, 状态码: {content}", False, setu_url]
+        # 错误处理, 如果content是空bytes, 那么Image.open会报错, 跳到except, 如果能打开图片, 图片应该不成问题,
+        try:
+            image = Image.open(BytesIO(content))  # 打开图片
+        except Exception as e:
+            return ["Error", f"图片打开失败, 错误信息: {repr(e)}", False, setu_url]
+        # 保存图片, 如果save_path不为空, 以及图片不在all_file_name中, 那么就保存图片
+        if save_path:
+            try:
+                with open(f"{save_path}/{file_name}", "wb") as f:
+                    f.write(content)
+                self.all_file_name["nsfw" if is_nsfw else "sfw"].add(file_name)
+            except Exception as e:
+                logger.error(f"图片存储失败: {repr(e)}")
+        try:
+            # 尝试修改图片
+            pic = await self.change_pixel(image, quality)
+            return [pic, photo_info, True, setu_url]
         except Exception as e:
             return ["Error", f"图片处理失败: {repr(e)}", False, setu_url]
 
