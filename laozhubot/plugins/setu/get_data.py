@@ -129,7 +129,8 @@ class GetData:
             logger.warning(f"图库中没有搜到关于{keywords}的图, 即将随机产生一张")
             # 随机产生涩图
             data = await self.random_get_setu(keywords, num, r18, quality)
-            # raise ValueError(f"图库中没有搜到关于{keywords}的图，即将随机产生一张")
+            if not data:
+                raise ValueError(f"随机获取setu失败")
         else:
             # 如果找到了
             async with AsyncClient(proxy=config.scientific_agency) as client:
@@ -220,6 +221,7 @@ class GetData:
                 data = await asyncio.gather(*tasks)
             except Exception as e:
                 logger.error(f"api获取随机图片失败: {repr(e)}")
+                return []
         return data
 
     async def pic_random(self, keywords: List[str], r18: bool, quality: int, client: AsyncClient, setu_proxy: str):
