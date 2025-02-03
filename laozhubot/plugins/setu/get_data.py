@@ -246,10 +246,11 @@ class GetData:
         res_or = await client.get(api_url_or)
         if res_and.status_code != 200 and res_or.status_code != 200:
             return ["Error", f"api获取图片失败，status_code: {res_and.status_code}，{res_or.status_code}", False, api_url_and]
+        # 自动选择有图的链接
         res = res_and if len(res_and.json()["data"]) > 0 else res_or
         logger.debug(f"{res.json()}")
-        logger.debug(f"{api_url_or=}")
-        logger.debug(f"{api_url_and=}")
+        a_o = 'and' if len(res_and.json()["data"]) > 0 else 'or'
+        logger.debug(f"最终使用{a_o}规则关键词")
         data = res.json()["data"]
         if not data:
             return ["Error", f"data获取失败{res.json()},没有符合条件的结果", False, api_url_and]
