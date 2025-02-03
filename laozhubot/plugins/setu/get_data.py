@@ -219,7 +219,7 @@ class GetData:
                 tasks = [self.pic_random(keywords, r18, quality, client, pm.read_proxy()) for i in range(num)]
                 data = await asyncio.gather(*tasks)
             except Exception as e:
-                logger.error(f"api获取随机图片失败: {repr(e)}")
+                logger.error(f"api获取随机图片失败: {e}")
         return data
 
     async def pic_random(self, keywords: List[str], r18: bool, quality: int, client: AsyncClient, setu_proxy: str):
