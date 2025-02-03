@@ -128,14 +128,15 @@ class GetData:
         if not db_data:
             logger.warning(f"图库中没有搜到关于{keywords}的图, 即将随机产生一张")
             # 随机产生涩图
-            await self.random_get_setu(keywords, num, r18, quality)
+            data = await self.random_get_setu(keywords, num, r18, quality)
             # raise ValueError(f"图库中没有搜到关于{keywords}的图，即将随机产生一张")
-        # 如果找到了
-        async with AsyncClient(proxies=config.scientific_agency) as client:
-            tasks = [
-                self.pic(setu, quality, client, pm.read_proxy()) for setu in db_data
-            ]
-            data = await asyncio.gather(*tasks)
+        else:
+            # 如果找到了
+            async with AsyncClient(proxy=config.scientific_agency) as client:
+                tasks = [
+                    self.pic(setu, quality, client, pm.read_proxy()) for setu in db_data
+                ]
+                data = await asyncio.gather(*tasks)
         return data
 
     async def pic(self, setu: List, quality: int, client: AsyncClient, setu_proxy: str):
