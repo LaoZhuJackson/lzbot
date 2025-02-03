@@ -79,13 +79,22 @@ class GetData:
             # 未输入keywords时的查询语句
             # GROUP_CONCAT(t.tag_name, ', ') 用于将每张图片的多个标签合并成一个以逗号分隔的字符串。如果一张图片有多个标签，它们将被合并在一起，作为一个字符串返回
             # 由于 GROUP_CONCAT() 是聚合函数，GROUP BY m.pid 是必须的，这样可以确保每张图片（pid）对应一个结果行，同时将所有标签合并成一个字符串。
-            sql = f"SELECT m.pid,m.title,m.author,m.r18,CROUP_CONCAT(t.tag_name,'，' as tags,m.urls from image_data m LEFT JOIN image_tags it ON m.pid = it.pid LEFT JOIN tags t ON it.tag_id = t.tag_id WHERE m.r18 = {r18} AND m.status != 'unavailable' GROUP BY m.pid order by random() limit {num}"
+            sql = f"""
+            SELECT m.pid,m.title,m.author,m.r18,CROUP_CONCAT(t.tag_name,'，' as tags,m.urls 
+            from image_data AS m 
+            LEFT JOIN image_tags AS it ON m.pid = it.pid 
+            LEFT JOIN tags AS t ON it.tag_id = t.tag_id 
+            WHERE m.r18 = {r18} AND m.status != 'unavailable' 
+            GROUP BY m.pid 
+            order by random() 
+            limit {num}
+"""
         elif len(keywords) == 1:
             sql = f"""
                 SELECT m.pid, m.title, m.author, m.r18, GROUP_CONCAT(t.tag_name, ', ') AS tags, m.urls
-                FROM image_data m
-                LEFT JOIN image_tags it ON m.pid = it.pid
-                LEFT JOIN tags t ON it.tag_id = t.tag_id
+                FROM image_data AS m
+                LEFT JOIN image_tags AS it ON m.pid = it.pid
+                LEFT JOIN tags AS AS t ON it.tag_id = t.tag_id
                 WHERE (t.tag_name LIKE '%{keywords[0]}%' OR m.title LIKE '%{keywords[0]}%' OR m.author LIKE '%{keywords[0]}%')
                   AND m.r18 = {r18}
                   AND m.status != 'unavailable'
@@ -101,9 +110,9 @@ class GetData:
             )
             sql = f"""
                 SELECT m.pid, m.title, m.author, m.r18, GROUP_CONCAT(t.tag_name, ', ') AS tags, m.urls
-                FROM image_data m
-                LEFT JOIN image_tags it ON m.pid = it.pid
-                LEFT JOIN tags t ON it.tag_id = t.tag_id
+                FROM image_data AS m
+                LEFT JOIN image_tags AS it ON m.pid = it.pid
+                LEFT JOIN tags AS t ON it.tag_id = t.tag_id
                 WHERE ({tag_sql}) 
                   AND m.r18 = {r18} 
                   AND m.status != 'unavailable'
