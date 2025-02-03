@@ -257,10 +257,10 @@ class GetData:
         cur = conn.cursor()
         # image_data表
         cur.execute('''
-            INSERT OR IGNORE INTO image_data (pid, p, uid, title, author, r18, width, height, ext, ai_type, upload_date, urls)
+            INSERT OR IGNORE INTO image_data (pid, p, uid, title, author, r18, width, height, ext, ai_type, upload_date, urls, status)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ''', (
-            pid, p, uid, title, author, r18, width, height, ext,ai_type,upload_date,setu_url_origin
+            pid, p, uid, title, author, r18, width, height, ext, ai_type, upload_date, setu_url_origin, 'available'
         ))
         # tags表
         for tag in tags:
