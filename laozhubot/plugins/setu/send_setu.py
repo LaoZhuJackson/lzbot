@@ -100,7 +100,7 @@ class SendSetu:
         key = [word.strip() for word in key.split(" ") if word.strip()]
 
         # 控制台输出
-        flag_log = f"\nR18 == {r18}\nkeyword == {key}\nnum == {num}\n"
+        flag_log = f"\nR18:{r18}\n关键词:{key}\n数量:{num}\n"
         logger.info(f"key = {key}\tr18 = {r18}\tnum = {num}")
         # 记录cd时间
         pm.update_last_send(session_id)

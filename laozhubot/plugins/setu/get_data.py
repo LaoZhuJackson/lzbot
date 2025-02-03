@@ -281,8 +281,6 @@ class GetData:
         conn.commit()
         conn.close()
         # 尝试获取图片
-        logger.debug(f"{r18=}")
-        logger.debug(f"{type(r18)}")
         is_nsfw = r18
         save_path: Union[bool, str] = (
             config.setu_nsfw_path if is_nsfw else config.setu_sfw_path
