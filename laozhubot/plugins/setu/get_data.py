@@ -3,6 +3,7 @@ import json
 import os
 import random
 import sqlite3
+import traceback
 from io import BytesIO
 from pathlib import Path
 from typing import Dict, List, Union
@@ -126,7 +127,7 @@ class GetData:
         # 断开数据库连接
         conn.close()
         if not db_data:
-            logger.warning(f"图库中没有搜到关于{keywords}的图, 即将随机产生一张")
+            logger.warning(f"图库中没有搜到{keywords=},{r18=},{num=}的图,开始随机产生")
             # 随机产生涩图
             data = await self.random_get_setu(keywords, num, r18, quality)
             if not data:
@@ -139,6 +140,7 @@ class GetData:
                 ]
                 data = await asyncio.gather(*tasks)
                 # 如果本地数量不够
+                logger.warning(f"本地图库数量不够，还需要随机生成{num - len(tasks)}张")
                 if len(tasks) < num:
                     data_append = await self.random_get_setu(keywords, num - len(tasks), r18, quality)
                     data.extend(data_append)
@@ -224,7 +226,7 @@ class GetData:
                 tasks = [self.pic_random(keywords, r18, quality, client, pm.read_proxy()) for i in range(num)]
                 data = await asyncio.gather(*tasks)
             except Exception as e:
-                logger.error(f"api获取随机图片失败: {repr(e)}")
+                logger.error(f"api获取随机图片失败: {repr(e)}\n{traceback.format_exc()}")
                 return []
         return data
 
