@@ -48,22 +48,26 @@ setu_sendcd = [
 ]
 
 HELP_MSG = r"""setu指令:
-^(setu|色图|涩图|想色色|来份色色|来份色图|想涩涩|多来点|来点色图|来张setu|来张色图|来点色色|色色|涩涩)\s?([x|✖️|×|X|*]?\d+[张|个|份]?)?\s?(r18)?\s?(.*)?
+命令头: setu|色图|涩图|想色色|来份色色|来份色图|想涩涩|多来点|来点色图|来张setu|来张色图|来点色色|色色|涩涩  (任意一个)
+张数(可选): 1 2 3 4 ... 张|个|份  (默认1)
+r18(可选): 不填则不会出现r18图片, 填了会根据r18模式管理中的数据判断是否可返回r18图片
+关键词(可选): 任意, 多tag使用空格分开 (置空则随机)
+eg:setu 10张 r18 白丝|涩涩 10份 白丝|setu
 
 白名单管理：
-setu_wl add  添加会话至白名单 eg: setu_wl add user_114514/group_1919810
-setu_wl del  移出会话自白名单 eg: setu_wl del user_114514/group_1919810
+setu_wl add  添加本会话至白名单 eg: setu_wl add user_114514/group_1919810
+setu_wl del  移出本会话自白名单 eg: setu_wl del user_114514/group_1919810
 
 黑名单管理：    
-setu_ban add  添加会话至黑名单 eg: setu_ban add user_114514/group_1919810
-setu_ban del  移出会话自黑名单 eg: setu_ban del user_114514/group_1919810
+setu_ban add  添加本会话至黑名单 eg: setu_ban add user_114514/group_1919810
+setu_ban del  移出本会话自黑名单 eg: setu_ban del user_114514/group_1919810
 
 r18模式管理:
-setu_r18 on  开启会话的r18模式 eg: setu_r18 on group_1919810
-setu_r18 off 关闭会话的r18模式 eg: setu_r18 off group_1919810
+setu_r18 on  开启本会话的r18模式 eg: setu_r18 on group_1919810
+setu_r18 off 关闭本会话的r18模式 eg: setu_r18 off group_1919810
 
 cd时间更新:
-setu_cd xxx  更新会话的冷却时间, xxx为int类型的参数 eg: setu_cd 10 group_1919810
+setu_cd xxx  更新本会话的冷却时间, xxx为int类型的参数 eg: setu_cd 10 group_1919810
 
 撤回时间更新:
 setu_wd xxx  撤回前等待的时间, xxx为int类型的参数 eg: setu_wd 10 group_1919810
