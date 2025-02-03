@@ -5,7 +5,7 @@ from nonebot import on_regex, on_command
 from nonebot.permission import SUPERUSER
 from nonebot.plugin import PluginMetadata
 
-from laozhubot.plugins.setu import manager_handle
+from laozhubot.plugins.setu.manager_handle import manager_handle
 from laozhubot.plugins.setu.send_setu import send_setu
 
 with contextlib.suppress(Exception):
