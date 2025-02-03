@@ -243,7 +243,8 @@ class GetData:
         if res.status_code != 200:
             return ["Error", f"api获取图片失败，status_code: {res.status_code}", False, api_url]
         logger.debug(f"{res.json()}")
-        data = res.json()["data"][0]
+        logger.debug(f"{api_url=}")
+        data = res.json()["data"]
         pid = data["pid"]
         p = data["p"]
         uid = data["uid"]
