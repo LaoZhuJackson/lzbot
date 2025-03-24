@@ -7,9 +7,6 @@ from nonebot.plugin import PluginMetadata
 from nonebot.adapters.onebot.v11.helpers import (
     Cooldown,
     CooldownIsolateLevel,
-    autorevoke_send,
-    Bot,
-    Event
 )
 from nonebot.adapters.onebot.v11.event import NoticeEvent, MessageEvent, GroupMessageEvent, Event, \
     GroupUploadNoticeEvent
@@ -36,7 +33,7 @@ jm_enable = on_command('开启jm', rule=to_me(), aliases={'关闭jm'}, permissio
 
 
 @jm_enable.handle()
-async def set_enable(cmd: str = Command()):
+async def set_enable(cmd: str = Command()[0]):
     if '开启' in cmd:
         plugin_config.jm_enable = True
     elif '关闭' in cmd:
@@ -56,7 +53,7 @@ jm_download = on_command('jm下载', rule=is_enable, aliases={"jm", "本子下�
         Cooldown(cooldown=plugin_config.jm_personal_cd, prompt="冲太快了，去找卵龙导一发后再试",
                  isolate_level=CooldownIsolateLevel.USER)]
 )
-async def handle_download_function(bot: Bot, event: Event, args: Message = CommandArg()):
+async def handle_download_function(args: Message = CommandArg()):
     if num := args.extract_plain_text():
         import jmcomic
         option = jmcomic.create_option_by_file('/home/laozhu/lzbot/laozhubot/plugins/jm_download/option.yml')

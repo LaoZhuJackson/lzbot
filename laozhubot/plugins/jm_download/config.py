@@ -10,7 +10,7 @@ class Config(BaseModel):
     # 全局发送间隔
     jm_send_interval: int = 3
     # 个人cd
-    jm_personal_cd: int = 30
+    jm_personal_cd: int = 300
     jm_enable: bool = True
 
     # @field_validator('downloader_reply_quote', 'downloader_reply_at', mode='before')
