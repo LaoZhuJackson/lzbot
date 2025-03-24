@@ -1,4 +1,5 @@
 from nonebot import on_command, logger, get_plugin_config
+from nonebot.adapters.onebot.v12 import MessageSegment
 from nonebot.rule import to_me
 from nonebot.adapters import Message
 from nonebot.params import CommandArg, Command
@@ -79,11 +80,8 @@ async def handle_download_function(bot: Bot, event: Event, args: Message = Comma
 
         # 发送文件（适配器相关部分）
         try:
-            name = f"{num}.pdf"
-            if isinstance(event, GroupMessageEvent) or isinstance(event, GroupUploadNoticeEvent):
-                await bot.call_api('upload_group_file', group_id=event.group_id, name=name, file=pdf_file)
-            else:
-                await bot.call_api('upload_private_file', user_id=event.user_id, name=name, file=pdf_file)
+            message = MessageSegment.file(str(pdf_file))
+            await jm_download.finish(message)
         except Exception as e:
             await jm_download.finish(f"发送PDF文件失败: {e}")
     else:
