@@ -91,20 +91,20 @@ plugins:
         pdf_dir: /home/laozhu/lzbot/data/jm/pdf/ # pdf存放文件夹
         filename_rule: Aid # pdf命名规则，A代表album, name代表使用album.name也就是本子名称
 
-    - plugin: zip # 压缩文件插件
-      kwargs:
-        level: album # 按照章节，一个章节一个压缩文件
-        # album，表示一个本子对应一个压缩文件，该压缩文件会包含这个本子的所有章节
-        # photo，表示按照章节，一个章节一个压缩文件
-
-        filename_rule: Aid # 压缩文件的命名规则
-        # 请注意⚠ [https://github.com/hect0x7/JMComic-Crawler-Python/issues/223#issuecomment-2045227527]
-        # filename_rule和level有对应关系
-        # 如果level=[photo], filename_rule只能写Pxxx
-        # 如果level=[album], filename_rule只能写Axxx
-
-        zip_dir: /home/laozhu/lzbot/data/jm/zip/ # 压缩文件存放的文件夹
-        delete_original_file: true # 压缩成功后，删除所有原文件和文件夹
+#    - plugin: zip # 压缩文件插件
+#      kwargs:
+#        level: album # 按照章节，一个章节一个压缩文件
+#        # album，表示一个本子对应一个压缩文件，该压缩文件会包含这个本子的所有章节
+#        # photo，表示按照章节，一个章节一个压缩文件
+#
+#        filename_rule: Aid # 压缩文件的命名规则
+#        # 请注意⚠ [https://github.com/hect0x7/JMComic-Crawler-Python/issues/223#issuecomment-2045227527]
+#        # filename_rule和level有对应关系
+#        # 如果level=[photo], filename_rule只能写Pxxx
+#        # 如果level=[album], filename_rule只能写Axxx
+#
+#        zip_dir: /home/laozhu/lzbot/data/jm/zip/ # 压缩文件存放的文件夹
+#        delete_original_file: true # 压缩成功后，删除所有原文件和文件夹
 
 
 

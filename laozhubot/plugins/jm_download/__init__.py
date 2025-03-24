@@ -8,10 +8,13 @@ from nonebot.adapters.onebot.v11.helpers import (
     Cooldown,
     CooldownIsolateLevel,
     autorevoke_send,
+    Bot,
+    Event
 )
 from pathlib import Path
 from nonebot.permission import SUPERUSER
 from .config import Config
+from .utils import structure_node
 
 # __plugin_meta__ = PluginMetadata(
 #     name="jm下载",
@@ -48,34 +51,55 @@ jm_download = on_command('jm下载', rule=is_enable, aliases={"jm", "本子下�
 
 @jm_download.handle(
     parameterless=[
-        Cooldown(cooldown=plugin_config.jm_personal_cd, prompt="冲太快了，去找卵龙导一发后再试", isolate_level=CooldownIsolateLevel.USER)]
+        Cooldown(cooldown=plugin_config.jm_personal_cd, prompt="冲太快了，去找卵龙导一发后再试",
+                 isolate_level=CooldownIsolateLevel.USER)]
 )
-async def handle_download_function(args: Message = CommandArg()):
+async def handle_download_function(bot: Bot, event: Event, args: Message = CommandArg()):
     if num := args.extract_plain_text():
-        
+
         import jmcomic
         option = jmcomic.create_option_by_file('/home/laozhu/lzbot/laozhubot/plugins/jm_download/option.yml')
         try:
             jmcomic.download_album(num, option)
             await jm_download.send(f"下载{num}完成")
-            pdf_path = Path('/home/laozhu/lzbot/data/jm/pdf')
-            # 检查文件夹是否存在
-            if not pdf_path.exists() or not pdf_path.is_dir():
-                await jm_download.finish("PDF文件夹不存在")
-            # 构建完整文件路径
-            pdf_file = pdf_path / f"{num}.pdf"
-            # 检查文件是否存在
-            if not pdf_file.exists():
-                await jm_download.finish(f"找不到PDF文件: {num}.pdf")
-            # 发送文件（适配器相关部分）
-            try:
-                # OneBot适配器示例
-                from nonebot.adapters.onebot.v11 import MessageSegment
-                await jm_download.send(MessageSegment.file(pdf_file))
-            except Exception as e:
-                await jm_download.finish(f"发送PDF文件失败: {e}")
         except Exception as e:
-            await jm_download.finish(f"下载{num}失败")
+            await jm_download.finish(f"下载{num}失败: {e}")
 
+        pdf_path = Path('/home/laozhu/lzbot/data/jm/pdf')
+
+        # 检查文件夹是否存在
+        if not pdf_path.exists() or not pdf_path.is_dir():
+            await jm_download.finish("PDF文件夹不存在")
+
+        # 构建完整文件路径
+        pdf_file = pdf_path / f"{num}.pdf"
+
+        # 检查文件是否存在
+        if not pdf_file.exists():
+            await jm_download.finish(f"找不到PDF文件: {num}.pdf")
+
+        # 发送文件（适配器相关部分）
+        try:
+            nodes = [{
+                "type": "node",
+                "data": {
+                    "content": [
+                        {
+                            "type": "file",
+                            "data": {
+                                "file": str(pdf_file),
+                                "name": pdf_file.name,
+                            },
+                        }
+                    ]
+                },
+            }]
+            await bot.send_forward_msg(
+                user_id=event.user_id,
+                group_id=getattr(event, "group_id", None),
+                message=nodes
+            )
+        except Exception as e:
+            await jm_download.finish(f"发送PDF文件失败: {e}")
     else:
         await jm_download.finish("未输入编号")
