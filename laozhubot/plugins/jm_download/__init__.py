@@ -11,7 +11,7 @@ from nonebot.adapters.onebot.v11.helpers import (
 )
 from pathlib import Path
 from nonebot.permission import SUPERUSER
-from .config import Config, PERSONAL_CD
+from .config import Config
 
 # __plugin_meta__ = PluginMetadata(
 #     name="jm下载",
@@ -48,13 +48,13 @@ jm_download = on_command('jm下载', rule=is_enable, aliases={"jm", "本子下�
 
 @jm_download.handle(
     parameterless=[
-        Cooldown(cooldown=PERSONAL_CD, prompt="冲太快了，去找卵龙导一发后再试", isolate_level=CooldownIsolateLevel.USER)]
+        Cooldown(cooldown=plugin_config.jm_personal_cd, prompt="冲太快了，去找卵龙导一发后再试", isolate_level=CooldownIsolateLevel.USER)]
 )
 async def handle_download_function(args: Message = CommandArg()):
     if num := args.extract_plain_text():
         await jm_download.send(f"开始下载{num}")
         import jmcomic
-        option = jmcomic.create_option_by_file('option.yml')
+        option = jmcomic.create_option_by_file('/home/laozhu/lzbot/laozhubot/plugins/jm_download/option.yml')
         jmcomic.download_album(num, option)
         option.call_all_plugin('')
         pdf_path = Path('/home/laozhu/lzbot/data/jm/pdf')
