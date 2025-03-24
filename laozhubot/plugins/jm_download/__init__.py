@@ -52,20 +52,21 @@ jm_download = on_command('jm下载', rule=is_enable, aliases={"jm", "本子下�
 )
 async def handle_download_function(args: Message = CommandArg()):
     if num := args.extract_plain_text():
-        await jm_download.send(f"开始下载{num}")
+        
         import jmcomic
         option = jmcomic.create_option_by_file('/home/laozhu/lzbot/laozhubot/plugins/jm_download/option.yml')
-        jmcomic.download_album(num, option)
-        option.call_all_plugin('')
-        pdf_path = Path('/home/laozhu/lzbot/data/jm/pdf')
-        # 检查文件夹是否存在
-        if not pdf_path.exists() or not pdf_path.is_dir():
-            await jm_download.finish("PDF文件夹不存在")
-        # 构建完整文件路径
-        pdf_file = pdf_path / f"{num}.pdf"
-        # 检查文件是否存在
-        if not pdf_file.exists():
-            await jm_download.finish(f"找不到PDF文件: {num}.pdf")
+        try:
+            jmcomic.download_album(num, option)
+            await jm_download.send(f"下载{num}完成")
+            pdf_path = Path('/home/laozhu/lzbot/data/jm/pdf')
+            # 检查文件夹是否存在
+            if not pdf_path.exists() or not pdf_path.is_dir():
+                await jm_download.finish("PDF文件夹不存在")
+            # 构建完整文件路径
+            pdf_file = pdf_path / f"{num}.pdf"
+            # 检查文件是否存在
+            if not pdf_file.exists():
+                await jm_download.finish(f"找不到PDF文件: {num}.pdf")
             # 发送文件（适配器相关部分）
             try:
                 # OneBot适配器示例
@@ -73,6 +74,8 @@ async def handle_download_function(args: Message = CommandArg()):
                 await jm_download.send(MessageSegment.file(pdf_file))
             except Exception as e:
                 await jm_download.finish(f"发送PDF文件失败: {e}")
+        except Exception as e:
+            await jm_download.finish(f"下载{num}失败")
 
     else:
         await jm_download.finish("未输入编号")
