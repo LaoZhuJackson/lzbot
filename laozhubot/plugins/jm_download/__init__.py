@@ -80,7 +80,12 @@ async def handle_download_function(bot: Bot, event: Event, args: Message = Comma
 
         # 发送文件（适配器相关部分）
         try:
-            message = MessageSegment.file(str(pdf_file))
+            message = MessageSegment.file(
+                file_id='1',
+                path=str(pdf_file),
+                file_type='file',
+                name=f'{num}.pdf'
+            )
             await jm_download.finish(message)
         except Exception as e:
             await jm_download.finish(f"发送PDF文件失败: {e}")
