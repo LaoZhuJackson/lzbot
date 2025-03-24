@@ -1,4 +1,4 @@
-import yaml
+from nonebot.adapters.onebot.v11 import MessageSegment
 from nonebot import on_command, logger, get_plugin_config
 from nonebot.rule import to_me
 from nonebot.adapters import Message
@@ -55,8 +55,11 @@ jm_download = on_command('jm下载', rule=is_enable, aliases={"jm", "本子下�
                  isolate_level=CooldownIsolateLevel.USER)]
 )
 async def handle_download_function(bot: Bot, event: Event, args: Message = CommandArg()):
-    if num := args.extract_plain_text():
+    file_path = "/home/laozhu/lzbot/data/jm/pdf/1112213.pdf"  # 替换为实际文件路径
+    message = MessageSegment.file(file_path)
+    await jm_download.finish(message)
 
+    if num := args.extract_plain_text():
         import jmcomic
         option = jmcomic.create_option_by_file('/home/laozhu/lzbot/laozhubot/plugins/jm_download/option.yml')
         try:
