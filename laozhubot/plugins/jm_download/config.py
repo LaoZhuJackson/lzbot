@@ -10,8 +10,8 @@ class Config(BaseModel):
     # 全局发送间隔
     jm_send_interval: int = 3
     # 个人cd
-    jm_personal_cd:int = 30
-    jm_enable:bool = True
+    jm_personal_cd: int = 30
+    jm_enable: bool = True
 
     # @field_validator('downloader_reply_quote', 'downloader_reply_at', mode='before')
     # def check_reply_options(self, v, info):
@@ -23,4 +23,3 @@ class Config(BaseModel):
     #     if info.field_name == 'downloader_reply_at' and v and values.get('downloader_reply_quote'):
     #         raise ValueError('引用回复和@回复不能同时为true')
     #     return v
-
