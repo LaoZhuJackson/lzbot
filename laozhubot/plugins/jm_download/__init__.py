@@ -1,4 +1,3 @@
-from nonebot.adapters.onebot.v11 import MessageSegment
 from nonebot import on_command, logger, get_plugin_config
 from nonebot.rule import to_me
 from nonebot.adapters import Message
@@ -11,6 +10,7 @@ from nonebot.adapters.onebot.v11.helpers import (
     Bot,
     Event
 )
+from nonebot.adapters.onebot.v11.event import NoticeEvent, MessageEvent, GroupMessageEvent,Event, GroupUploadNoticeEvent
 from pathlib import Path
 from nonebot.permission import SUPERUSER
 from .config import Config
@@ -55,10 +55,6 @@ jm_download = on_command('jm下载', rule=is_enable, aliases={"jm", "本子下�
                  isolate_level=CooldownIsolateLevel.USER)]
 )
 async def handle_download_function(bot: Bot, event: Event, args: Message = CommandArg()):
-    file_path = "/home/laozhu/lzbot/data/jm/pdf/1112213.pdf"  # 替换为实际文件路径
-    message = MessageSegment.file(file_path)
-    await jm_download.finish(message)
-
     if num := args.extract_plain_text():
         import jmcomic
         option = jmcomic.create_option_by_file('/home/laozhu/lzbot/laozhubot/plugins/jm_download/option.yml')
@@ -83,25 +79,11 @@ async def handle_download_function(bot: Bot, event: Event, args: Message = Comma
 
         # 发送文件（适配器相关部分）
         try:
-            nodes = [{
-                "type": "node",
-                "data": {
-                    "content": [
-                        {
-                            "type": "file",
-                            "data": {
-                                "file": str(pdf_file),
-                                "name": pdf_file.name,
-                            },
-                        }
-                    ]
-                },
-            }]
-            await bot.send_forward_msg(
-                user_id=event.user_id,
-                group_id=getattr(event, "group_id", None),
-                message=nodes
-            )
+            name = f"{num}.pdf"
+            if isinstance(event, GroupMessageEvent) or isinstance(event, GroupUploadNoticeEvent):
+                await bot.call_api('upload_group_file', group_id=event.group_id, name=name, file=pdf_file)
+            else:
+                await bot.call_api('upload_private_file', user_id=event.user_id, name=name, file=pdf_file)
         except Exception as e:
             await jm_download.finish(f"发送PDF文件失败: {e}")
     else:
