@@ -11,7 +11,8 @@ from nonebot.adapters.onebot.v11.helpers import (
     Bot,
     Event
 )
-from nonebot.adapters.onebot.v11.event import NoticeEvent, MessageEvent, GroupMessageEvent,Event, GroupUploadNoticeEvent
+from nonebot.adapters.onebot.v11.event import NoticeEvent, MessageEvent, GroupMessageEvent, Event, \
+    GroupUploadNoticeEvent
 from pathlib import Path
 from nonebot.permission import SUPERUSER
 from .config import Config
@@ -31,7 +32,7 @@ from .utils import structure_node
 
 plugin_config = get_plugin_config(Config)
 
-jm_enable = on_command('开启jm', rule=to_me(), aliases={'关闭jm'}, permission=SUPERUSER)
+jm_enable = on_command('开启jm', rule=to_me(), aliases={'关闭jm'}, permission=SUPERUSER, priority=4, block=True)
 
 
 @jm_enable.handle()
@@ -79,15 +80,11 @@ async def handle_download_function(bot: Bot, event: Event, args: Message = Comma
             await jm_download.finish(f"找不到PDF文件: {num}.pdf")
 
         # 发送文件（适配器相关部分）
-        try:
-            message = MessageSegment.file(
-                file_id='1',
-                path=str(pdf_file),
-                file_type='file',
-                name=f'{num}.pdf'
-            )
-            await jm_download.finish(message)
-        except Exception as e:
-            await jm_download.finish(f"发送PDF文件失败: {e}")
+        message = MessageSegment.file(
+            file_id=f'{num}',
+            path=str(pdf_file),
+            file_type='file'
+        )
+        await jm_download.finish(message)
     else:
         await jm_download.finish("未输入编号")
