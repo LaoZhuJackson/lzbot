@@ -1,5 +1,6 @@
 nb adapter install nonebot-adapter-onebot
-pip install nonebot
+nb driver install nonebot2[fastapi]
+nb driver install nonebot2[httpx]
 nb plugin install nonebot-plugin-status
 nb plugin install nonebot_plugin_memes
 nb plugin install nonebot-plugin-cloudsignx
