@@ -1,3 +1,5 @@
+from typing import Tuple
+
 from nonebot import on_command, logger, get_plugin_config
 from nonebot.adapters.onebot.v12 import MessageSegment
 from nonebot.rule import to_me
@@ -33,12 +35,13 @@ jm_enable = on_command('开启jm', rule=to_me(), aliases={'关闭jm'}, permissio
 
 
 @jm_enable.handle()
-async def set_enable(cmd: str = Command()[0]):
-    if '开启' in cmd:
+async def set_enable(cmd: Tuple[str] = Command()):
+    s = cmd[0]
+    if '开启' in s:
         plugin_config.jm_enable = True
-    elif '关闭' in cmd:
+    elif '关闭' in s:
         plugin_config.jm_enable = False
-    await jm_enable.finish(f'已{cmd}')
+    await jm_enable.finish(f'已{s}')
 
 
 async def is_enable():
